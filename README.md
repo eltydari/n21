@@ -10,19 +10,33 @@ A term may be multiple words (sometimes we call those words tokens).  You should
 The terms to put in the Trie are these:
 
 Borrower
+
 Subsidiaries
+
 Material Project Party
+
 Project
+
 Project Manager
+
 Anti-Money Laundering Laws
+
 Sanctions
+
 Anti-Corruption Laws
+
 Affiliates
+
 Sanctioned Person
+
 Sanctioned Country
+
 Person
+
 Officer
+
 Director
+
 Agents
 
 
