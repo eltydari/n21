@@ -9,6 +9,7 @@ WORD_PATTERN = re.compile(r"([^,.:;?!\s]+)")
 END = "\0"
 
 Token = namedtuple("Token", ["line_num", "start_pos", "contents"])
+Location = namedtuple("Token", ["line_num", "start_pos"])
 
 
 class Tokenizer(object):
@@ -116,20 +117,23 @@ class TrieParser(object):
 
         rootMatch = self._root[word]
         if rootMatch is not None:
-            if rootMatch.terminal:
-                rootMatch.add_value(token)
-            else:
-                self._queue.appendleft(rootMatch)
+            location = Location(token.line_num, token.start_pos)
 
-        prevMatch = self._queue.pop()
-        while prevMatch != END:
+            if rootMatch.terminal:
+                rootMatch.add_value(location)
+            else:
+                self._queue.appendleft((rootMatch, location))
+
+        prevMatchTuple = self._queue.pop()
+        while prevMatchTuple != END:
+            prevMatch, loc = prevMatchTuple
             match = prevMatch[word]
             if match is not None:
                 if match.terminal:
-                    match.add_value(token)
+                    match.add_value(loc)
                 else:
-                    self._queue.appendleft(match)
-            prevMatch = self._queue.pop()
+                    self._queue.appendleft((match, loc))
+            prevMatchTuple = self._queue.pop()
 
         self._queue.appendleft(END)
 
