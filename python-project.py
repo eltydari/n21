@@ -2,6 +2,7 @@ import argparse
 from collections import namedtuple, deque
 from copy import copy
 import os.path
+from pprint import pprint
 import re
 
 WORD_PATTERN = re.compile(r"([^,.:;?!\s]+)")
@@ -42,6 +43,10 @@ class TrieNode(object):
     def terminal(self):
         return self._terminal
 
+    @property
+    def children(self):
+        return self._children.keys()
+
     def create_child(self, key, terminal=False):
         child = self._children.setdefault(key, TrieNode())
         if terminal:
@@ -79,8 +84,25 @@ class TrieParser(object):
         for token in tokens:
             self._process_token(token)
 
-    def print_stats(self):
-        pass
+    def get_stats(self):
+        stats = []
+        self._get_stats_recursive(self._root, stats, [])
+        return stats
+
+    def _get_stats_recursive(self, node, stats, name):
+        for child in node.children:
+            child_name = name + [child]
+            child_node = node[child]
+            if child_node.terminal:
+                data = child_node.values
+                str_name = " ".join(child_name)
+                stats.extend(({
+                    "Entry": str_name,
+                    "LineNum": val.line_num,
+                    "StartPos": val.start_pos
+                } for val in data))
+            else:
+                self._get_stats_recursive(child_node, stats, child_name)
 
     def _make_trie(self, node, cfg_stack):
         current_stack = copy(cfg_stack)
@@ -123,7 +145,7 @@ def main():
 
     parser = TrieParser(args.configPath)
     parser.parse(args.documentPath)
-    parser.print_stats()
+    pprint(parser.get_stats())
 
 
 if __name__ == "__main__":
