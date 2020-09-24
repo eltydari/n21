@@ -9,6 +9,11 @@ There are no dependencies, simply run:
 Example:
 
     python3 python-project.py .\examples\document.txt
+    
+    
+## Complexity
+
+Code runs in linear time. Memory is also linear.
 
 
 ## Results
