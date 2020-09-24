@@ -20,10 +20,9 @@ class Tokenizer(object):
 
     def get_tokens(self):
         nline = 0
-        while True:
+        for line in self.document:
             nline += 1
             spos = 0
-            line = self.document.next()
             for word in WORD_PATTERN.finditer(line):
                 spos += 1
                 yield Token(nline, spos, word.groups()[0])
