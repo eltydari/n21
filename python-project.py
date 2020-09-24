@@ -1,5 +1,5 @@
 import argparse
-from collections import namedtuple
+from collections import namedtuple, deque
 from copy import copy
 import os.path
 import re
@@ -30,36 +30,36 @@ class Tokenizer(object):
 
 class TrieNode(object):
     def __init__(self):
-        self.__data = []
-        self.__children = {}
-        self.__terminal = False
+        self._data = []
+        self._children = {}
+        self._terminal = False
 
     @property
     def values(self):
-        return copy(self.__data)
+        return copy(self._data)
 
     @property
     def terminal(self):
-        return self.__terminal
+        return self._terminal
 
     def create_child(self, key, terminal=False):
-        child = self.__children.setdefault(key, TrieNode())
+        child = self._children.setdefault(key, TrieNode())
         if terminal:
             child.set_terminal()
         return child
 
     def add_value(self, value):
-        self.__data.append(value)
+        self._data.append(value)
 
     def set_terminal(self):
-        self.__terminal = True
+        self._terminal = True
 
     def __getitem__(self, key):
-        return self.__children.get(key, None)
+        return self._children.get(key, None)
 
     def __repr__(self):
         keys = []
-        for key in self.__children.keys():
+        for key in self._children.keys():
             if self[key].terminal:
                 key += '*'
             keys.append(key)
@@ -69,9 +69,18 @@ class TrieNode(object):
 class TrieParser(object):
     def __init__(self, path):
         self._root = TrieNode()
+        self._queue = deque([END])
         with open(path) as config:
             for line in config:
                 self._make_trie(self._root, line.split()[::-1])
+
+    def parse(self, documentPath):
+        tokens = Tokenizer(documentPath).get_tokens()
+        for token in tokens:
+            self._process_token(token)
+
+    def print_stats(self):
+        pass
 
     def _make_trie(self, node, cfg_stack):
         current_stack = copy(cfg_stack)
@@ -80,6 +89,27 @@ class TrieParser(object):
         child = node.create_child(key, terminal=stack_empty)
         if not stack_empty:
             self._make_trie(child, current_stack)
+
+    def _process_token(self, token):
+        word = token.contents
+
+        rootMatch = self._root[word]
+        if rootMatch is not None:
+            if rootMatch.terminal:
+                rootMatch.add_value(token)
+            else:
+                self._queue.appendleft(rootMatch)
+
+        prevMatch = self._queue.pop()
+        while prevMatch != END:
+            match = prevMatch[word]
+            if match is not None:
+                if match.terminal:
+                    match.add_value(token)
+                else:
+                    self._queue.appendleft(match)
+
+        self._queue.appendleft(END)
 
 
 def main():
@@ -91,7 +121,7 @@ def main():
     args = parser.parse_args()
 
     parser = TrieParser(args.configPath)
-    print(parser._root)
+    parser.parse(args.documentPath)
 
 
 if __name__ == "__main__":
