@@ -137,7 +137,7 @@ class TrieParser(object):
 def main():
     parser = argparse.ArgumentParser(description='Process a file looking for specific words/phrases.')
     parser.add_argument('documentPath', type=str, help='Path to the document to be processed.')
-    parser.add_argument('--configPath', default=os.path.join(".", "config.txt"),
+    parser.add_argument('--configPath', default=os.path.join(".", "config", "config.txt"),
                         help='Path to the configuration file containing words/phrases.')
 
     args = parser.parse_args()

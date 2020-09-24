@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "python-project.py",
             "args": [
-                "./document.txt"
+                "./examples/document.txt"
             ],
             "console": "integratedTerminal"
         }
