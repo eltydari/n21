@@ -1,13 +1,22 @@
 import argparse
 import os.path
+import re
+
+WORD_PATTERN = re.compile(r"([^,.:;?!\s]+)")
 
 
 class Tokenizer(object):
     def __init__(self, path):
-        pass
+        self.document = open(path)
 
-    def nextToken(self):
-        pass
+    def __del__(self):
+        self.document.close()
+
+    def getTokens(self):
+        while True:
+            line = self.document.next()
+            for word in WORD_PATTERN.finditer(line):
+                yield word.groups()[0]
 
 
 class TrieParser(object):
@@ -22,15 +31,14 @@ def main():
     parser = argparse.ArgumentParser(description='Process a file looking for specific words/phrases.')
     parser.add_argument('documentPath', type=str, help='Path to the document to be processed.')
     parser.add_argument('--configPath', default=os.path.join(".", "config.txt"),
-                        help='Path to the configuration file containg words/phrases.')
+                        help='Path to the configuration file containing words/phrases.')
 
     args = parser.parse_args()
-    with open(args.documentPath) as f:
-        print(f.read())
-    print(args.documentPath)
-    with open(args.configPath) as f:
-        print(f.read())
-    print(args.configPath)
+
+    parser = TrieParser(args.configPath)
+    for token in Tokenizer(args.documentPath).getTokens():
+        print token
+
 
 if __name__ == "__main__":
     main()
