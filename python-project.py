@@ -9,7 +9,7 @@ WORD_PATTERN = re.compile(r"([^,.:;?!\s]+)")
 END = "\0"
 
 Token = namedtuple("Token", ["line_num", "start_pos", "contents"])
-Location = namedtuple("Token", ["line_num", "start_pos"])
+Location = namedtuple("Location", ["line_num", "start_pos"])
 
 
 class Tokenizer(object):
