@@ -108,6 +108,7 @@ class TrieParser(object):
                     match.add_value(token)
                 else:
                     self._queue.appendleft(match)
+            prevMatch = self._queue.pop()
 
         self._queue.appendleft(END)
 
@@ -122,6 +123,7 @@ def main():
 
     parser = TrieParser(args.configPath)
     parser.parse(args.documentPath)
+    parser.print_stats()
 
 
 if __name__ == "__main__":
